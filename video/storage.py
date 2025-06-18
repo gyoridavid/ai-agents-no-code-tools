@@ -218,7 +218,41 @@ class Storage:
             str: Temporary media ID.
         """
         return f"{media_id}.tmp"
+        
+    def list_media(self, media_type: Optional[str] = None):
+    """
+    Lists all media files, optionally filtering by a specific media type.
+    Returns a list of dictionaries, each with a 'file_id'.
+    """
+    logger.info(f"Listing media with filter: {media_type}")
+    
+    files_to_return = []
+    
+    # Determine which directories to search
+    dirs_to_search = []
+    if media_type:
+        # If a specific type is requested, only search that directory
+        search_dir = os.path.join(self.storage_path, media_type)
+        if os.path.isdir(search_dir):
+            dirs_to_search.append(search_dir)
+    else:
+        # If no type is specified, search all media type directories
+        for m_type in ["image", "video", "audio"]:
+            search_dir = os.path.join(self.storage_path, m_type)
+            if os.path.isdir(search_dir):
+                dirs_to_search.append(search_dir)
 
+    # Walk through the selected directories
+    for directory in dirs_to_search:
+        for filename in os.listdir(directory):
+            # We only want the file name without the extension as the ID
+            file_id, _ = os.path.splitext(filename)
+            files_to_return.append({"file_id": file_id})
+    
+    logger.info(f"Found {len(files_to_return)} files.")
+    return files_to_return
+
+    
     def create_tmp_file(self, media_id: str) -> str:
         """
         Creates a temporary file for media upload.

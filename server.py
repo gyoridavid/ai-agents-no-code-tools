@@ -202,7 +202,14 @@ def upload_file(
             )
         file_id = storage.upload_media_from_url(media_type=media_type, url=url)
         return {"file_id": file_id}
-
+        
+@v1_media_api_router.get("/storage")
+def list_files(media_type: Optional[str] = None):
+    """
+    List all media files, optionally filtered by media_type.
+    """
+    all_files = storage.list_media(media_type=media_type)
+    return {"data": all_files}
 
 @v1_media_api_router.get("/storage/{file_id}")
 def download_file(file_id: str):
